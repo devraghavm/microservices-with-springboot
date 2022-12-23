@@ -1,0 +1,19 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://repo.spring.io/release' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    
+}
+rootProject.name = 'microservices-with-springboot'
+include 'hello-world-service'
+include 'accounts'
+include 'loans'
+include 'cards'
+include 'configserver'
+include 'swagger-codegen'
+include 'openapi-generator-codegen'
+include 'eurekaserver'
+include 'gatewayserver'
+

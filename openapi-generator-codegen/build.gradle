@@ -1,0 +1,35 @@
+plugins {
+    id "org.openapi.generator" version "6.2.1"
+}
+
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "$projectDir/src/main/resources/messenger-service.yml".toString()
+    outputDir = "$buildDir/generated".toString()
+    ignoreFileOverride = "$projectDir/.openapi-generator-ignore"
+    templateDir = "$projectDir/src/main/resources/templates/JavaSpring"
+//    apiPackage = "com.raghav.microservices.api"
+//    invokerPackage = "com.raghav.microservices.invoker"
+    modelPackage = "com.raghav.microservices.model"
+    configOptions = [
+            dateLibrary      : "java8",
+            useBeanValidation: "true"
+    ]
+}
+
+tasks.openApiGenerate {
+    doLast {
+        delete(
+                "$buildDir/generated/README.md",
+                "$buildDir/generated/pom.xml",
+                "$buildDir/generated/.openapi-generator-ignore",
+                "$buildDir/generated/.openapi-generator",
+                "$buildDir/generated/src/main/java/org",
+                "$buildDir/generated/src/main/resources",
+                "$buildDir/generated/src/test"
+        )
+    }
+}
+
+compileJava.dependsOn tasks.openApiGenerate

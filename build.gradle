@@ -1,0 +1,50 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.6' apply false
+//    id 'org.springframework.experimental.aot' version '0.12.1' apply false
+}
+
+ext {
+    springBootVersion = "2.7.6"
+    springBomVersion = "1.0.15.RELEASE"
+    springCloudVersion = "2021.0.5"
+    validationApiVersion = "2.0.1.Final"
+    swaggerAnnotationsVersion = "2.2.6"
+}
+
+
+allprojects {
+    group 'com.raghav.microservices'
+    version '0.0.1-SNAPSHOT'
+}
+
+repositories {
+    maven { url 'https://repo.spring.io/release' }
+    mavenCentral()
+}
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "io.spring.dependency-management"
+//    apply plugin: "org.springframework.experimental.aot"
+    sourceCompatibility = 17
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    repositories {
+        maven { url 'https://repo.spring.io/release' }
+        mavenCentral()
+    }
+    dependencyManagement {
+        imports {
+            mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+}

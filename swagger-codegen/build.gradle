@@ -1,0 +1,82 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath('io.swagger.codegen.v3:swagger-codegen-maven-plugin:3.0.34')
+    }
+}
+
+import io.swagger.codegen.v3.DefaultGenerator
+import io.swagger.codegen.v3.config.CodegenConfigurator
+import io.swagger.v3.parser.OpenAPIV3Parser
+
+def apiPackage = 'com.raghav.microservices.api'
+def modelPackage = 'com.raghav.microservices.model'
+def ignoreFile = "$projectDir/.swagger-codegen-ignore"
+ext.swaggerFile = "$projectDir/src/main/resources/messenger-service.yml"
+//ext.outDir = "$projectDir/src/main/java"
+ext.generatedOutput = "$projectDir//build"
+ext.templateDir = "$projectDir/template"
+
+task generateServer {
+    doLast {
+        println "${ignoreFile}"
+        def config = new CodegenConfigurator()
+        config.setLang("spring")
+        config.setApiPackage(apiPackage)
+        config.setModelPackage(modelPackage)
+        config.setInputSpec(project.swaggerFile.toString())
+        config.setOutputDir(project.generatedOutput.toString())
+        config.setIgnoreFileOverride(ignoreFile)
+        config.setTemplateDir(project.templateDir.toString())
+        config.setAdditionalProperties([
+                'dateLibrary'  : 'java8',
+                'useTags'      : 'true',
+                'interfaceOnly': 'true'
+        ])
+
+        def something = config.toClientOptInput()
+        something.setOpenAPI(new OpenAPIV3Parser().read(project.swaggerFile.toString(), null, null))
+
+        (new DefaultGenerator().opts(something)).generate()
+
+        delete(
+                "${project.generatedOutput}/README.md",
+                "${project.generatedOutput}/pom.xml",
+                "${project.generatedOutput}/.swagger-codegen-ignore",
+                "${project.generatedOutput}/.swagger-codegen"
+        )
+    }
+}
+
+configurations {
+    swagger
+}
+
+sourceSets {
+    swagger {
+        compileClasspath = configurations.swaggerCompileClasspath
+    }
+    main {
+        compileClasspath += swagger.output
+        runtimeClasspath += swagger.output
+    }
+}
+compileJava.dependsOn generateServer
+compileSwaggerJava.dependsOn generateServer
+classes.dependsOn swaggerClasses
+compileJava.dependsOn compileSwaggerJava
+
+sourceSets.main.java.srcDirs = ["src/main/java", "build/src/main/java"]
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "javax.validation:validation-api:${validationApiVersion}"
+    implementation "io.swagger.core.v3:swagger-annotations:${swaggerAnnotationsVersion}"
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.h2database:h2'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

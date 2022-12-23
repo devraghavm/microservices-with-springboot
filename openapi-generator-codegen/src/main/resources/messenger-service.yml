@@ -1,0 +1,43 @@
+openapi: 3.0.3
+servers:
+  - url: 'http://localhost:8080'
+info:
+  description: Messenger service API
+  version: 0.2.0
+  title: Messenger API
+  termsOfService: 'http://www.github.com'
+  contact:
+    email: info@something.com
+  license:
+    name:  User Licence
+    url: 'http://www.github.com'
+
+paths:
+  /messenger/message:
+    post:
+      summary: Send a message
+      operationId: send
+      description: Send a message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '201':
+          description: Response to the message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+components:
+  schemas:
+    Message:
+      properties:
+        from:
+          type: string
+        to:
+          type: string
+        msgToSend:
+          type: string
